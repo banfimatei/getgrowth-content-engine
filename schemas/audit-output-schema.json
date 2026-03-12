@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GetGrowth ASO Audit Output",
+  "description": "Canonical structured output from the ASO audit agent. This is the single source of truth that all content agents read from.",
+  "type": "object",
+  "required": ["app_name", "store_id", "platform", "category", "overall_score", "category_scores", "top_issues", "recommendations"],
+  "properties": {
+    "app_name": { "type": "string" },
+    "store_id": { "type": "string", "description": "Apple bundle ID or Google Play package name" },
+    "platform": { "type": "string", "enum": ["ios", "android"] },
+    "category": { "type": "string", "description": "Primary app store category (e.g. Health & Fitness, Finance)" },
+    "subcategory": { "type": "string" },
+    "country_code": { "type": "string", "default": "US" },
+    "store_url": { "type": "string", "format": "uri" },
+    "icon_url": { "type": "string", "format": "uri" },
+    "developer_name": { "type": "string" },
+    "app_size_tier": {
+      "type": "string",
+      "enum": ["pre_launch", "early_stage", "growth", "scale", "mature"],
+      "description": "Estimated stage based on ratings count, downloads, age"
+    },
+    "overall_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "category_scores": {
+      "type": "object",
+      "properties": {
+        "metadata": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "visuals": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "keywords": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "ratings_reviews": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "conversion": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "localization": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "competitive_position": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "visibility_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "cvr_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "top_issues": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["issue", "severity", "category", "impact"],
+        "properties": {
+          "issue": { "type": "string", "description": "One-line issue statement" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "category": { "type": "string", "description": "Which ASO dimension this affects" },
+          "impact": { "type": "string", "description": "Why this matters for growth" },
+          "current_state": { "type": "string", "description": "What the app currently does/has" },
+          "evidence": { "type": "string", "description": "Data point or observation supporting the issue" }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["recommendation", "priority", "effort", "expected_impact"],
+        "properties": {
+          "recommendation": { "type": "string" },
+          "priority": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "effort": { "type": "string", "enum": ["low", "medium", "high"] },
+          "expected_impact": { "type": "string", "enum": ["low", "medium", "high", "very_high"] },
+          "category": { "type": "string" },
+          "details": { "type": "string", "description": "Specific implementation guidance" },
+          "benchmark_reference": { "type": "string", "description": "How top competitors handle this" }
+        }
+      }
+    },
+    "experiment_ideas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hypothesis", "test_type", "metric"],
+        "properties": {
+          "hypothesis": { "type": "string" },
+          "test_type": { "type": "string", "enum": ["a_b_test", "before_after", "regional_test", "seasonal_test"] },
+          "metric": { "type": "string", "description": "Primary metric to track" },
+          "variant_description": { "type": "string" },
+          "estimated_duration_days": { "type": "integer" },
+          "confidence_level": { "type": "string", "enum": ["high", "medium", "speculative"] }
+        }
+      }
+    },
+    "competitor_snapshot": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "store_id": { "type": "string" },
+          "overall_score": { "type": "integer" },
+          "strengths": { "type": "array", "items": { "type": "string" } },
+          "weaknesses": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "audit_version": { "type": "string" },
+        "audited_at": { "type": "string", "format": "date-time" },
+        "data_freshness": { "type": "string", "description": "When store data was last scraped" },
+        "agent_model": { "type": "string" },
+        "is_public_teardown": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}
