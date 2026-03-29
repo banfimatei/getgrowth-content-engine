@@ -1,0 +1,45 @@
+---
+description: Cursor-specific guidance for the getgrowth-content-engine n8n agent repo
+globs: ["**/*.md", "**/*.json", "**/*.sql"]
+alwaysApply: true
+---
+
+# GetGrowth Content Engine — Cursor Rules
+
+## What This Repo Is
+
+Configuration, schemas, and prompt templates only. No runnable local code.
+All agents execute inside n8n (hosted on deltabyetoro.app.n8n.cloud).
+
+## File Editing Rules
+
+- **Prompt templates** → `templates/<agent>_prompt.md`
+  - Write in plain markdown; n8n will paste these into the AI node
+  - Use `{{variable}}` syntax for n8n expression placeholders
+- **Schemas** → `schemas/<type>.json`
+  - JSON Schema draft-07; used to validate Gemini outputs before DB insert
+  - Keep in sync with the Supabase table definitions in ARCHITECTURE.md
+
+## Secrets Policy
+
+- **Never commit credentials** — not in workflow JSON, not in `.env`, not in comments
+- n8n workflow exports must use the "Export workflow" option (no credentials)
+- If you add a `.env.example`, use placeholder values only (e.g. `SUPABASE_KEY=your_key_here`)
+
+## Naming Conventions
+
+- Agents numbered 1–5 in execution order: `1-audit`, `2-teardown`, `3-repurpose`, `4-benchmark`, `5-publish`
+- Templates follow the same numbering: `templates/1_audit_prompt.md`
+- Workflow JSON exports (if tracked): `workflows/<number>-<name>.json`
+
+## Do Not Touch
+
+- Supabase table structure — defined in ARCHITECTURE.md; schema changes require a Supabase migration
+- n8n workflow IDs — these are environment-specific; don't hardcode them in docs
+
+## Keeping Docs in Sync
+
+When you update a prompt template:
+1. Update the corresponding schema if the output structure changes
+2. Update ARCHITECTURE.md if the data flow changes
+3. Note the change in README.md agent table if the schedule or output type changes
